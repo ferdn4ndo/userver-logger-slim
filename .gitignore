@@ -11,6 +11,10 @@ backend/build/*
 
 backend/data/*
 !backend/data/.gitkeep
+!backend/data/empty.sqlite.db
+
+backend/src/tmp/*
+!backend/src/tmp/.gitkeep
 
 *.pyc
 *.sqlite

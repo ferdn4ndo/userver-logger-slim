@@ -1,39 +1,30 @@
 version: '3'
 services:
-  backend:
-    container_name: userver-logger-backend
-    build:
-      context: ./backend
-      dockerfile: dev.Dockerfile
-    expose:
-      - 8080
+  api:
+    container_name: userver-logger-api
+    image: ferdn4ndo/userver-logger-api:1.0.4
+    # image: userver-logger-api_api
     ports:
-      - "8080:8080"
+      - "5555:5555"
     volumes:
-      - ./backend/build:/build
-      - ./backend/data:/data
-      - ./backend/src:/go/src/github.com/ferdn4ndo/userver-logger-slim/src
+      - ./log_files:/log_files
     env_file:
       - ./backend/.env
-#    command: -config.expand-env -config.file=/etc/loki/config/loki-config.yaml
-#    healthcheck:
-#      test: ["CMD", "curl", "-s", "-f", "http://userver-loki:3100/"]
-#      retries: 6
 
-#  container_monitor:
-#    container_name: userver-container-monitor
-#    build:
-#      context: ./container_monitor
-#      dockerfile: Dockerfile
-#    volumes:
-#      - ./container_monitor/data:/opt/monitor/data
-#      - ./container_monitor/scripts:/opt/monitor/scripts
-#      - ./log_files:/opt/monitor/logs
-#      - /var/run/docker.sock:/var/run/docker.sock
-#    env_file:
-#      - ./container_monitor/.env
+  container_monitor:
+    container_name: userver-container-monitor
+    build:
+      context: ./container_monitor
+      dockerfile: Dockerfile
+    volumes:
+      - ./container_monitor/data:/opt/monitor/data
+      - ./container_monitor/scripts:/opt/monitor/scripts
+      - ./log_files:/opt/monitor/logs
+      - /var/run/docker.sock:/var/run/docker.sock
+    env_file:
+      - ./container_monitor/.env
 
 networks:
   default:
-    external:
-      name: nginx-proxy
+    name: nginx-proxy
+    external: true

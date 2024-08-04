@@ -8,7 +8,7 @@ fi
 # read the env variables with their default values
 LOOP_WAIT_INTERVAL="${LOOP_WAIT_INTERVAL:-5s}"
 MAX_LOG_LINES="${MAX_LOG_LINES:-1000}"
-EXCLUDED_CONTAINER_NAMES="${EXCLUDED_CONTAINER_NAMES:-userver-loki;userver-grafana;userver-promtail;userver-container-monitor}"
+EXCLUDED_CONTAINER_NAMES="${EXCLUDED_CONTAINER_NAMES:-userver-logger-api;userver-container-monitor}"
 LOG_FILES_PREFIX="${LOG_FILES_PREFIX:-container_monitor_}"
 DATA_FOLDER="${DATA_FOLDER:-/monitor/data}"
 LOGS_FOLDER="${LOGS_FOLDER:-/monitor/logs}"
@@ -17,7 +17,7 @@ CURRENT_CONTAINERS_LIST_FILENAME="${CURRENT_CONTAINERS_LIST_FILENAME:-current_co
 PREVIOUS_TIMESTAMP_FILENAME="${PREVIOUS_TIMESTAMP_FILENAME:-last_timestamp.txt}"
 MONITOR_LOG_FILENAME="${MONITOR_LOG_FILENAME:-userver-container-monitor.log}"
 COPY_NGINX_LOGS="${COPY_NGINX_LOGS:-1}"
-NGINX_CONTAINER_NAME="${NGINX_CONTAINER_NAME:-server-nginx-proxy}"
+NGINX_CONTAINER_NAME="${NGINX_CONTAINER_NAME:-userver-nginx-proxy}"
 NGINX_CONTAINER_LOGS_FOLDER="${NGINX_CONTAINER_LOGS_FOLDER:-/var/log/nginx}"
 
 function clone_nginx_logs {
@@ -134,13 +134,13 @@ function check_containers_list_changes {
     if [ ! -f "${previous_containers_file}" ]; then
         touch "${previous_containers_file}"
     fi
-    containers_stopped="$(comm -23 "${previous_containers_file}" "${current_containers_file}")"
+    containers_stopped="$(comm --nocheck-order -23 "${previous_containers_file}" "${current_containers_file}")"
     if [ -n "${containers_stopped}" ]; then
         message="The following containers were stopped since last checking: ${containers_stopped//$'\n'/ }"
         echo "$message"
         echo "[WARNING] ${message}" >> "${monitor_log_file}"
     fi
-    containers_started="$(comm -13 "${previous_containers_file}" "${current_containers_file}")"
+    containers_started="$(comm --nocheck-order -13 "${previous_containers_file}" "${current_containers_file}")"
     if [ -n "${containers_started}" ]; then
         message="The following containers were started since last checking: ${containers_started//$'\n'/ }"
         echo "$message"
